@@ -53,24 +53,38 @@ export const createQuotation = async (req, res, next) => {
             gst,
             finalAmount,
             studioName: settings.siteName || 'Visionary Studio',
-            logo: settings.logoUrl,
+            logo: settings.companyLogoUrl || settings.logoUrl,
             contactEmail: settings.contactEmail,
             contactPhone: settings.contactPhone,
             website: process.env.FRONTEND_URL || 'www.visionarystudio.com'
         }, tempPath);
 
+        // Verify File exists and has content
+        const stats = fs.statSync(tempPath);
+        if (stats.size === 0) {
+            throw new Error('Generated PDF is empty. Corruption detected.');
+        }
+        console.log(`PDF Generated successfully: ${stats.size} bytes`);
+
         // 2. Upload to Cloudinary
+        console.log('Uploading to Cloudinary...');
+        const uniquePublicId = `${quotationNumber}-${Date.now()}`;
         const uploadResult = await cloudinary.v2.uploader.upload(tempPath, {
             folder: 'quotations',
-            resource_type: 'raw', // PDF is 'raw' or 'image' depending on how you want to handle it, but 'raw' is safer for PDF
-            public_id: quotationNumber
+            resource_type: 'image', 
+            public_id: uniquePublicId, // No extension here
+            format: 'pdf' // Upload as PDF
         });
+        console.log('Upload successful:', uploadResult.secure_url);
 
-        // 3. Save to Database
+        // 3. Save to Database (Convert PDF to PNG URL for better viewing)
+        // Cloudinary URL format: .../upload/v123/folder/public_id.pdf -> change to .png
+        const pngUrl = uploadResult.secure_url.replace(/\.pdf$/, '.png');
+        
         const quotation = await Quotation.create({
             leadId,
             quotationNumber,
-            pdfUrl: uploadResult.secure_url,
+            pdfUrl: pngUrl, // Store PNG version
             pdfPublicId: uploadResult.public_id,
             actualPrice,
             sellingPrice,

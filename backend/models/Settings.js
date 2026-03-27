@@ -5,14 +5,19 @@ const settingsSchema = new mongoose.Schema({
         type: String,
         default: 'Photography Portfolio'
     },
-    logoUrl: String,
+    companyLogoUrl: String,
+    navbarLogoUrl: String,
+    footerLogoUrl: String,
+    logoUrl: String, // Fallback for legacy
     contactEmail: String,
     contactPhone: String,
     socialLinks: {
         instagram: String,
         facebook: String,
         twitter: String,
-        youtube: String
+        youtube: String,
+        linkedin: String,
+        whatsapp: String
     },
     aboutText: String,
     aboutImage: {

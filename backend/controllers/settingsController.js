@@ -33,7 +33,10 @@ export const updateSettings = async (req, res, next) => {
         if (settings) {
             // Update existing settings
             settings.siteName = req.body.siteName || settings.siteName;
-            settings.logoUrl = req.body.logoUrl || settings.logoUrl;
+            settings.companyLogoUrl = req.body.companyLogoUrl || settings.companyLogoUrl;
+            settings.navbarLogoUrl = req.body.navbarLogoUrl || settings.navbarLogoUrl;
+            settings.footerLogoUrl = req.body.footerLogoUrl || settings.footerLogoUrl;
+            settings.logoUrl = req.body.companyLogoUrl || req.body.logoUrl || settings.logoUrl;
             settings.contactEmail = req.body.contactEmail || settings.contactEmail;
             settings.contactPhone = req.body.contactPhone || settings.contactPhone;
             settings.socialLinks = req.body.socialLinks || settings.socialLinks;
